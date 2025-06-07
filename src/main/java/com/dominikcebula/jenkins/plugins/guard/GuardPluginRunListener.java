@@ -47,9 +47,11 @@ public class GuardPluginRunListener extends RunListener<Run<?, ?>> {
     public void onCompleted(Run<?, ?> run, TaskListener listener) {
         PrintStream logger = listener.getLogger();
 
-        logger.println("[GUARD] ⏳ Post-check running");
-        logger.println("[GUARD] Executing post-checks ...");
-        logger.println("[GUARD] ✅ Post-check Successful");
+        if (run.getResult() == Result.SUCCESS) {
+            logger.println("[GUARD] ⏳ Post-check running");
+            logger.println("[GUARD] Executing post-checks ...");
+            logger.println("[GUARD] ✅ Post-check Successful");
+        }
     }
 
     private Map<String, String> getStringParameters(Run<?, ?> run) {
