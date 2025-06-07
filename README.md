@@ -1,3 +1,5 @@
+[![CI Pipeline](https://github.com/dominikcebula/jenkins-plugin-guard-sample/actions/workflows/maven.yml/badge.svg)](https://github.com/dominikcebula/jenkins-plugin-guard-sample/actions/workflows/maven.yml)
+
 # Jenkins Guard Plugin Sample
 
 ## Introduction
