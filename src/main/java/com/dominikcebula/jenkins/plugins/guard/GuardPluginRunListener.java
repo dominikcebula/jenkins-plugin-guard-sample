@@ -3,24 +3,44 @@ package com.dominikcebula.jenkins.plugins.guard;
 import hudson.Extension;
 import hudson.model.Result;
 import hudson.model.Run;
+import hudson.model.StringParameterValue;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
 @Extension
 public class GuardPluginRunListener extends RunListener<Run<?, ?>> {
 
+    private static final String CHG_NUMBER_PARAMETER_NAME = "CHG_NUMBER";
+    private static final String CHG_PREFIX = "CHG";
+
     @Override
     public void onStarted(Run<?, ?> run, TaskListener listener) {
         PrintStream logger = listener.getLogger();
 
-        logger.println("[GUARD] Pre-check running");
-        logger.println("[GUARD] ❌ failing build – aborting");
+        logger.println("[GUARD] ⏳ Pre-check running");
 
-        failJobRun(run, logger);
+        Map<String, String> stringParameters = getStringParameters(run);
+
+        logger.println("[GUARD] Inspecting Change Request Number parameter");
+        String chgNumber = stringParameters.get(CHG_NUMBER_PARAMETER_NAME);
+        logger.printf("[GUARD] \"%s\" = \"%s\"%n", CHG_NUMBER_PARAMETER_NAME, chgNumber);
+
+        if (StringUtils.isEmpty(chgNumber)) {
+            logger.println("[GUARD] ❌ failing build – Change Request Number parameter is empty");
+            failJobRun(run, logger);
+        } else if (!StringUtils.startsWith(chgNumber, CHG_PREFIX)) {
+            logger.println("[GUARD] ❌ failing build – Change Request Number parameter should start with " + CHG_PREFIX);
+            failJobRun(run, logger);
+        } else {
+            logger.println("[GUARD] ✅ Build Success");
+        }
     }
 
     @Override
@@ -28,6 +48,16 @@ public class GuardPluginRunListener extends RunListener<Run<?, ?>> {
         PrintStream logger = listener.getLogger();
 
         logger.println("[GUARD] Post-check → " + run.getResult());
+    }
+
+    private static Map<String, String> getStringParameters(Run<?, ?> run) {
+        return run.getParameterValues().stream()
+                .filter(StringParameterValue.class::isInstance)
+                .map(StringParameterValue.class::cast)
+                .collect(Collectors.toMap(
+                        StringParameterValue::getName,
+                        StringParameterValue::getValue
+                ));
     }
 
     private void failJobRun(Run<?, ?> run, PrintStream logger) {
