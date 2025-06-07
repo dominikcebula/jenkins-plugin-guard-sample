@@ -40,7 +40,7 @@ Example 2:
 
 Then pipeline execution is aborted:
 
-![pre_and_post_checks_success01.png](docs/pre_and_post_checks_success01.png)
+![pre_and_post_checks_failed.png](docs/pre_and_post_checks_failed.png)
 
 ## Usage
 
