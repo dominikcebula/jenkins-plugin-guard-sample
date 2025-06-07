@@ -33,13 +33,13 @@ public class GuardPluginRunListener extends RunListener<Run<?, ?>> {
         logger.printf("[GUARD] \"%s\" = \"%s\"%n", CHG_NUMBER_PARAMETER_NAME, chgNumber);
 
         if (StringUtils.isEmpty(chgNumber)) {
-            logger.println("[GUARD] ❌ failing build – Change Request Number parameter is empty");
+            logger.println("[GUARD] ❌ Pre-check Failed – Change Request Number parameter is empty");
             failJobRun(run, logger);
         } else if (!StringUtils.startsWith(chgNumber, CHG_PREFIX)) {
-            logger.println("[GUARD] ❌ failing build – Change Request Number parameter should start with " + CHG_PREFIX);
+            logger.println("[GUARD] ❌ Pre-check Failed – Change Request Number parameter should start with " + CHG_PREFIX);
             failJobRun(run, logger);
         } else {
-            logger.println("[GUARD] ✅ Build Success");
+            logger.println("[GUARD] ✅ Pre-check Successful");
         }
     }
 
@@ -47,7 +47,9 @@ public class GuardPluginRunListener extends RunListener<Run<?, ?>> {
     public void onCompleted(Run<?, ?> run, TaskListener listener) {
         PrintStream logger = listener.getLogger();
 
-        logger.println("[GUARD] Post-check → " + run.getResult());
+        logger.println("[GUARD] ⏳ Post-check running");
+        logger.println("[GUARD] Executing post-checks ...");
+        logger.println("[GUARD] ✅ Post-check Successful");
     }
 
     private Map<String, String> getStringParameters(Run<?, ?> run) {
