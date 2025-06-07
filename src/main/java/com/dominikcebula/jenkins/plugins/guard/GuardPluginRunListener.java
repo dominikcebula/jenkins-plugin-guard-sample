@@ -50,7 +50,7 @@ public class GuardPluginRunListener extends RunListener<Run<?, ?>> {
         logger.println("[GUARD] Post-check → " + run.getResult());
     }
 
-    private static Map<String, String> getStringParameters(Run<?, ?> run) {
+    private Map<String, String> getStringParameters(Run<?, ?> run) {
         return run.getParameterValues().stream()
                 .filter(StringParameterValue.class::isInstance)
                 .map(StringParameterValue.class::cast)
