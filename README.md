@@ -16,7 +16,11 @@ TBD
 
 ### Run under Jenkins using Maven
 
-TBD
+To run the plugin under Jenkins, using Maven, execute:
+
+```shell
+mvn hpi:run
+```
 
 ### Run under Jenkins using Docker Compose
 
