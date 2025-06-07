@@ -1,19 +1,11 @@
 package com.dominikcebula.jenkins.plugins.guard;
 
-import hudson.model.FreeStyleProject;
-import hudson.model.ParametersDefinitionProperty;
-import hudson.model.Result;
-import hudson.model.StringParameterDefinition;
+import hudson.model.*;
 import hudson.tasks.Shell;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
-/**
- * Tests for Maven-like projects.
- * Since we don't have the Maven plugin dependency, we'll simulate Maven projects
- * using FreeStyleProjects with Maven-like configuration.
- */
 public class GuardPluginMavenTest {
 
     @Rule
@@ -34,9 +26,10 @@ public class GuardPluginMavenTest {
         project.addProperty(params);
 
         // Run the job
-        jenkins.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0).get());
+        FreeStyleBuild jobRun = project.scheduleBuild2(0).get();
 
         // Verify the job passed
+        jenkins.assertBuildStatus(Result.SUCCESS, jobRun);
         jenkins.assertLogContains("[GUARD] ✅ Pre-check Successful", project.getLastBuild());
         jenkins.assertLogContains("[GUARD] ✅ Post-check Successful", project.getLastBuild());
     }
@@ -50,13 +43,10 @@ public class GuardPluginMavenTest {
         project.getBuildersList().add(new Shell("echo 'Simulating Maven build: mvn clean install'"));
 
         // Run the job
-        try {
-            project.scheduleBuild2(0).get();
-        } catch (Exception e) {
-            // Expected exception due to build interruption
-        }
+        FreeStyleBuild jobRun = project.scheduleBuild2(0).get();
 
         // Verify the job log contains the expected message
+        jenkins.assertBuildStatus(Result.ABORTED, jobRun);
         jenkins.assertLogContains("[GUARD] ❌ Pre-check Failed – Change Request Number parameter is empty", project.getLastBuild());
     }
 
@@ -75,13 +65,10 @@ public class GuardPluginMavenTest {
         project.addProperty(params);
 
         // Run the job
-        try {
-            project.scheduleBuild2(0).get();
-        } catch (Exception e) {
-            // Expected exception due to build interruption
-        }
+        FreeStyleBuild jobRun = project.scheduleBuild2(0).get();
 
         // Verify the job log contains the expected message
+        jenkins.assertBuildStatus(Result.ABORTED, jobRun);
         jenkins.assertLogContains("[GUARD] ❌ Pre-check Failed – Change Request Number parameter is empty", project.getLastBuild());
     }
 
@@ -100,13 +87,10 @@ public class GuardPluginMavenTest {
         project.addProperty(params);
 
         // Run the job
-        try {
-            project.scheduleBuild2(0).get();
-        } catch (Exception e) {
-            // Expected exception due to build interruption
-        }
+        FreeStyleBuild jobRun = project.scheduleBuild2(0).get();
 
         // Verify the job log contains the expected message
+        jenkins.assertBuildStatus(Result.ABORTED, jobRun);
         jenkins.assertLogContains("[GUARD] ❌ Pre-check Failed – Change Request Number parameter should start with CHG", project.getLastBuild());
     }
 }

@@ -1,12 +1,11 @@
 package com.dominikcebula.jenkins.plugins.guard;
 
-import hudson.model.FreeStyleProject;
-import hudson.model.ParametersDefinitionProperty;
-import hudson.model.Result;
-import hudson.model.StringParameterDefinition;
+import hudson.model.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+
+import java.util.concurrent.ExecutionException;
 
 public class GuardPluginFreestyleTest {
 
@@ -25,9 +24,10 @@ public class GuardPluginFreestyleTest {
         project.addProperty(params);
 
         // Run the job
-        jenkins.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0).get());
+        Run<?, ?> jobRun = scheduleJob(project);
 
         // Verify the job passed
+        jenkins.assertBuildStatus(Result.SUCCESS, jobRun);
         jenkins.assertLogContains("[GUARD] ✅ Pre-check Successful", project.getLastBuild());
         jenkins.assertLogContains("[GUARD] ✅ Post-check Successful", project.getLastBuild());
     }
@@ -38,13 +38,10 @@ public class GuardPluginFreestyleTest {
         FreeStyleProject project = jenkins.createFreeStyleProject("test-freestyle-missing-param");
 
         // Run the job
-        try {
-            project.scheduleBuild2(0).get();
-        } catch (Exception e) {
-            // Expected exception due to build interruption
-        }
+        Run<?, ?> jobRun = scheduleJob(project);
 
         // Verify the job log contains the expected message
+        jenkins.assertBuildStatus(Result.FAILURE, jobRun);
         jenkins.assertLogContains("[GUARD] ❌ Pre-check Failed – Change Request Number parameter is empty", project.getLastBuild());
     }
 
@@ -60,13 +57,10 @@ public class GuardPluginFreestyleTest {
         project.addProperty(params);
 
         // Run the job
-        try {
-            project.scheduleBuild2(0).get();
-        } catch (Exception e) {
-            // Expected exception due to build interruption
-        }
+        Run<?, ?> jobRun = scheduleJob(project);
 
         // Verify the job log contains the expected message
+        jenkins.assertBuildStatus(Result.FAILURE, jobRun);
         jenkins.assertLogContains("[GUARD] ❌ Pre-check Failed – Change Request Number parameter is empty", project.getLastBuild());
     }
 
@@ -82,13 +76,14 @@ public class GuardPluginFreestyleTest {
         project.addProperty(params);
 
         // Run the job
-        try {
-            project.scheduleBuild2(0).get();
-        } catch (Exception e) {
-            // Expected exception due to build interruption
-        }
+        Run<?, ?> jobRun = scheduleJob(project);
 
         // Verify the job log contains the expected message
+        jenkins.assertBuildStatus(Result.FAILURE, jobRun);
         jenkins.assertLogContains("[GUARD] ❌ Pre-check Failed – Change Request Number parameter should start with CHG", project.getLastBuild());
+    }
+
+    private Run<?, ?> scheduleJob(FreeStyleProject project) throws ExecutionException, InterruptedException {
+        return project.scheduleBuild2(0).get();
     }
 }
